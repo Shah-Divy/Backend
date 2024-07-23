@@ -1,14 +1,23 @@
 const express = require('express');
 const cors = require("cors");
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const multer = require('multer');
 require('./db/config');
 const User = require("./db/User");
 const { Await } = require('react-router-dom');
 
 
+dotenv.config();
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+app.get('/', (req, res) => {
+    res.send('Products API running');
+});
+
 
 app.post("/register",async (req,resp)=>{
      let user= new User(req.body);
@@ -34,4 +43,7 @@ app.post("/login", async (req,resp)=>{
 
 })
 
-app.listen(5001);
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
