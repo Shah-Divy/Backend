@@ -58,47 +58,53 @@ const User = require("./db/User");
 const { Await } = require('react-router-dom');
 
 dotenv.config();
+
+const corsConfig = {
+    origin: "*",
+    credentials: true,
+    methods : ["GET", "POST", "PUT", "DELETE"],
+};
+
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsConfig));
 
 app.get('/', (req, res) => {
     res.send('Products API running');
 });
 
+// API for the Sign-up
 app.post("/register", async (req, resp) => {
-    console.log("Register endpoint hit");
-    let user = new User(req.body);
     try {
+        let user = new User(req.body);
         let result = await user.save();
         result = result.toObject();
         delete result.password;
         resp.send(result);
     } catch (error) {
-        console.error("Error while saving user:", error);
-        resp.status(500).send({ error: "Error while saving user" });
+        resp.status(500).send({ error: 'Failed to register user' });
     }
 });
 
+// API for the login
 app.post("/login", async (req, resp) => {
-    console.log("Login endpoint hit", req.body);
-    if (req.body.password && req.body.name) {
-        try {
+    try {
+        if (req.body.password && req.body.email) {
             let user = await User.findOne(req.body).select("-password");
             if (user) {
                 resp.send(user);
             } else {
-                resp.send({ result: 'No User Found' });
+                resp.status(404).send({ result: 'No User Found' });
             }
-        } catch (error) {
-            console.error("Error during login:", error);
-            resp.status(500).send({ error: "Error during login" });
+        } else {
+            resp.status(400).send({ result: 'Email and password are required' });
         }
-    } else {
-        resp.send({ result: 'No User Found' });
+    } catch (error) {
+        resp.status(500).send({ error: 'Failed to login user' });
     }
 });
+
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
