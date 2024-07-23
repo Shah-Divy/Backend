@@ -55,7 +55,6 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 require('./db/config');
 const User = require("./db/User");
-console.log("User model loaded successfully");
 const { Await } = require('react-router-dom');
 
 dotenv.config();
@@ -69,21 +68,32 @@ app.get('/', (req, res) => {
 });
 
 app.post("/register", async (req, resp) => {
+    console.log("Register endpoint hit");
     let user = new User(req.body);
-    let result = await user.save();
-    result = result.toObject();
-    delete result.password;
-    resp.send(result);
+    try {
+        let result = await user.save();
+        result = result.toObject();
+        delete result.password;
+        resp.send(result);
+    } catch (error) {
+        console.error("Error while saving user:", error);
+        resp.status(500).send({ error: "Error while saving user" });
+    }
 });
 
 app.post("/login", async (req, resp) => {
-    console.log(req.body);
+    console.log("Login endpoint hit", req.body);
     if (req.body.password && req.body.name) {
-        let user = await User.findOne(req.body).select("-password");
-        if (user) {
-            resp.send(user);
-        } else {
-            resp.send({ result: 'No User Found' });
+        try {
+            let user = await User.findOne(req.body).select("-password");
+            if (user) {
+                resp.send(user);
+            } else {
+                resp.send({ result: 'No User Found' });
+            }
+        } catch (error) {
+            console.error("Error during login:", error);
+            resp.status(500).send({ error: "Error during login" });
         }
     } else {
         resp.send({ result: 'No User Found' });
