@@ -197,19 +197,19 @@ const User = require('./db/Divy');
 
 dotenv.config();
 
-const app = express();
-app.use(cors());
-// const corsOptions = {
-//     origin: 'https://room-rooster-kappa.vercel.app', // Your frontend URL
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     allowedHeaders: ['Content-Type', 'Authorization'],
-//     credentials: true
-// };
+// const app = express();
+// app.use(cors());
+const corsOptions = {
+    origin: 'https://room-rooster-kappa.vercel.app', // Your frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+};
 
-// app.use(cors(corsOptions));
+ app.use(cors(corsOptions));
 
 // Handle preflight requests
-// app.options('*', cors(corsOptions));
+ app.options('*', cors(corsOptions));
 
 
 app.get('/', (req, res) => {
@@ -221,43 +221,72 @@ app.get('/home', (req, res) => {
 });
 
 // API for Sign-up
-app.post('/register', async (req, res) => {
-    try {
-        let user = new User(req.body);
-        let result = await user.save();
-        result = result.toObject();
-        delete result.password;
-        res.send(result);
-    } catch (error) {
-        res.status(500).send({ error: 'Failed to register user' });
-    }
-});
+// app.post('/register', async (req, res) => {
+//     try {
+//         let user = new User(req.body);
+//         let result = await user.save();
+//         result = result.toObject();
+//         delete result.password;
+//         res.send(result);
+//     } catch (error) {
+//         res.status(500).send({ error: 'Failed to register user' });
+//     }
+// });
 
 // API for login
-app.post('/login', async (req, res) => {
-    try {
-        if (req.body.password && req.body.email) {
-            let user = await User.findOne({ email: req.body.email, password: req.body.password }).select('-password');
-            if (user) {
-                res.send(user);
-            } else {
-                res.status(404).send({ result: 'No User Found' });
-            }
-        } else {
-            res.status(400).send({ result: 'Email and password are required' });
-        }
-    } catch (error) {
-        res.status(500).send({ error: 'Failed to login user' });
+// app.post('/login', async (req, res) => {
+//     try {
+//         if (req.body.password && req.body.email) {
+//             let user = await User.findOne({ email: req.body.email, password: req.body.password }).select('-password');
+//             if (user) {
+//                 res.send(user);
+//             } else {
+//                 res.status(404).send({ result: 'No User Found' });
+//             }
+//         } else {
+//             res.status(400).send({ result: 'Email and password are required' });
+//         }
+//     } catch (error) {
+//         res.status(500).send({ error: 'Failed to login user' });
+//     }
+// });
+
+
+
+
+
+
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+app.post("/register",async (req,resp)=>{
+     let user= new User(req.body);
+     let result =await user.save();
+     result = result.toObject();
+     delete result.password;
+     resp.send(result);
+});
+
+app.post("/login", async (req,resp)=>{
+    console.log(req.body)
+    if(req.body.password && req.body.name) {
+    let user = await User.findOne(req.body).select("-password");
+    if(user)
+     {
+        resp.send(user)
+     }else{
+        resp.send({result : 'No User Found'})
+     }
+    } else {
+        resp.send({result : 'No User Found'})
     }
-});
 
-
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
+})
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
