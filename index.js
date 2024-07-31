@@ -201,17 +201,15 @@ dotenv.config();
 const app = express();
 
 const corsConfig = {
-    origin: 'https://room-rooster-kappa.vercel.app',
+    origin: 'https://room-rooster-kappa.vercel.app',  // Replace with your frontend URL
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsConfig));
 
-// Explicitly handle preflight requests
+// Handle preflight requests
 app.options('*', cors(corsConfig));
 
 app.use(express.json({ limit: '10mb' }));
