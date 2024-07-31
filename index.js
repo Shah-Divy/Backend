@@ -1,11 +1,10 @@
-
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const multer = require('multer');
 require('./db/config');
-const nama = require('./db/nama');
+const User = require('./db/User');
 const Detail = require('./db/Detail');
 
 dotenv.config();
@@ -13,7 +12,7 @@ dotenv.config();
 const app = express();
 
 const corsConfig = {
-    origin: 'https://room-rooster-kappa.vercel.app', // Ensure this matches your frontend URL
+    origin: 'https://room-rooster-kappa.vercel.app',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -44,30 +43,34 @@ app.get('/home', (req, res) => {
     res.send('API running');
 });
 
-// User Signup
-app.post('/signup', async (req, res) => {
+// API for Sign-up
+app.post('/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-        const user = new User({ name, email, password });
-        await user.save();
-        res.status(201).json({ name: user.name, email: user.email });
+        let user = new User(req.body);
+        let result = await user.save();
+        result = result.toObject();
+        delete result.password;
+        res.send(result);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to create user' });
+        res.status(500).send({ error: 'Failed to register user' });
     }
 });
 
-// User Login
+// API for login
 app.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email, password });
-        if (user) {
-            res.status(200).json({ name: user.name, email: user.email });
+        if (req.body.password && req.body.email) {
+            let user = await User.findOne(req.body).select('-password');
+            if (user) {
+                res.send(user);
+            } else {
+                res.status(404).send({ result: 'No User Found' });
+            }
         } else {
-            res.status(401).json({ error: 'Invalid credentials' });
+            res.status(400).send({ result: 'Email and password are required' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'Login failed' });
+        res.status(500).send({ error: 'Failed to login user' });
     }
 });
 
