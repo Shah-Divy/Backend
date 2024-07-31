@@ -188,13 +188,11 @@
 
 
 const express = require('express');
-// const cors = require('cors');
-var cors = require('cors')
+const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const path = require('path');
-require('./db/config'); // Ensure this is correct
+require('./db/config');
 
 const User = require('./db/Divy');
 const Detail = require('./db/Detail');
@@ -202,7 +200,7 @@ const Detail = require('./db/Detail');
 dotenv.config();
 
 const app = express();
-app.use(cors())
+
 const corsConfig = {
     origin: 'https://room-rooster-kappa.vercel.app',
     credentials: true,
@@ -252,7 +250,7 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         if (req.body.password && req.body.email) {
-            let user = await User.findOne(req.body).select('-password');
+            let user = await User.findOne({ email: req.body.email, password: req.body.password }).select('-password');
             if (user) {
                 res.send(user);
             } else {
