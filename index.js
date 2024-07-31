@@ -216,26 +216,14 @@ app.use(express.json());
 // API for Sign-up
 app.post('/register', async (req, res) => {
     try {
-        // Create a new user from request body
         let user = new User(req.body);
-        
-        // Validate user data
-        await user.validate();
-        
-        // Save user to database
+        await user.validate(); // Validate user data
         let result = await user.save();
-        
-        // Remove password from result before sending response
         result = result.toObject();
         delete result.password;
-        
-        // Send response
         res.send(result);
     } catch (error) {
-        // Log detailed error message
         console.error('Error during registration:', error);
-        
-        // Handle validation errors
         if (error.name === 'ValidationError') {
             res.status(400).send({ error: 'Validation failed', details: error.errors });
         } else {
@@ -247,24 +235,17 @@ app.post('/register', async (req, res) => {
 // API for login
 app.post('/login', async (req, res) => {
     try {
-        // Check if email and password are provided
         if (req.body.password && req.body.email) {
-            // Find user by email and password
             let user = await User.findOne({ email: req.body.email, password: req.body.password }).select('-password');
-            
-            // If user found, send user details
             if (user) {
                 res.send(user);
             } else {
-                // If no user found, send not found response
                 res.status(404).send({ result: 'No User Found' });
             }
         } else {
-            // If email or password is missing, send bad request response
             res.status(400).send({ result: 'Email and password are required' });
         }
     } catch (error) {
-        // Log detailed error message
         console.error('Error during login:', error);
         res.status(500).send({ error: 'Failed to login user' });
     }
