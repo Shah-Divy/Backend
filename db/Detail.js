@@ -1,4 +1,3 @@
-const { type } = require('@testing-library/user-event/dist/cjs/utility/type.js');
 const mongoose = require('mongoose');
 
 const detailSchema = new mongoose.Schema({
@@ -42,7 +41,7 @@ const detailSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    FurnishedStatus:{
+    FurnishedStatus: {
         type: String,
         required: true
     },
