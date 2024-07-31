@@ -188,7 +188,8 @@
 
 
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors');
+var cors = require('cors')
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -201,7 +202,7 @@ const Detail = require('./db/Detail');
 dotenv.config();
 
 const app = express();
-
+app.use(cors())
 const corsConfig = {
     origin: 'https://room-rooster-kappa.vercel.app',
     credentials: true,
