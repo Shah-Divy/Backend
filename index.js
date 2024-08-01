@@ -188,7 +188,12 @@
 
 const express = require('express');
 const cors = require('cors');
-app.use(cors());
+const corsConfig = {
+    origin: "*",
+    Credential: true,
+    methods : ["GET", "POST", "PUT", "DELETE"],
+}
+app.use(cors(corsConfig));
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 require('./db/config');
