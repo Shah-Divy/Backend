@@ -192,8 +192,10 @@ const corsConfig = {
     origin: "https://room-rooster-kappa.vercel.app",
     Credential: true,
     methods : ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+     credentials: true
 };
-app.options("", cors(corsConfig))
+app.options("*", cors(corsConfig))
 app.use(cors(corsConfig));
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
