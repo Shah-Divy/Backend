@@ -188,6 +188,7 @@
 
 const express = require('express');
 const cors = require('cors');
+app.use(cors());
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 require('./db/config');
@@ -198,20 +199,18 @@ dotenv.config();
 const app = express();
 
 // CORS configuration
-const corsOptions = {
-    origin: 'https://room-rooster-kappa.vercel.app', // Your frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
-};
+// const corsOptions = {
+//     origin: 'https://room-rooster-kappa.vercel.app', // Your frontend URL
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//     credentials: true
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
-// Handle preflight requests
-app.options('*', cors(corsOptions));
+// app.options('*', cors(corsOptions));
 
-// Middleware for parsing JSON requests
-app.use(express.json());
+// app.use(express.json());
 
 // API for Sign-up
 app.post('/register', async (req, res) => {
