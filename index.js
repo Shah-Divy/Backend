@@ -189,7 +189,7 @@
 const express = require('express');
 const cors = require('cors');
 const corsConfig = {
-    origin: "*",
+    origin: "https://room-rooster-kappa.vercel.app",
     Credential: true,
     methods : ["GET", "POST", "PUT", "DELETE"],
 };
