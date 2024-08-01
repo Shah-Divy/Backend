@@ -213,6 +213,14 @@ app.options('*', cors(corsOptions));
 // Middleware for parsing JSON requests
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send('Products API running');
+});
+
+app.get('/home', (req, res) => {
+    res.send('API running');
+});
+
 // API for Sign-up
 app.post('/register', async (req, res) => {
     try {
