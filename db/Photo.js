@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 
-const detailSchema = new mongoose.Schema({
+const photoSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -68,6 +68,6 @@ const detailSchema = new mongoose.Schema({
     }
 });
 
-const Detail = mongoose.model('Detail', detailSchema);
+const Photo = mongoose.model('Photo', photoSchema);
 
-module.exports = Detail;
+module.exports = Photo;

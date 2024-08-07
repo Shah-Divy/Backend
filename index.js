@@ -193,7 +193,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 require('./db/config');
 const User = require('./db/Divy');
-const Detail = require('./db/Detail');
+const Detail = require('./db/Photo');
 
 dotenv.config();
 
