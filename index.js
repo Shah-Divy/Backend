@@ -190,8 +190,10 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const multer = require('multer');
 require('./db/config');
 const User = require('./db/Divy');
+const Detail = require('./db/Detail');
 
 dotenv.config();
 
@@ -209,6 +211,16 @@ app.use(cors(corsOptions));
 
 // Handle preflight requests
 app.options('*', cors(corsOptions));
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB file size limit
+});
 
 // Middleware for parsing JSON requests
 app.use(express.json());
@@ -259,7 +271,127 @@ app.post('/login', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 5001;
+app.post('/details', upload.array('images', 3), async (req, res) => {
+    try {
+        console.log('Received request to add details');
+        
+        const images = req.files.map(file => ({
+            data: file.buffer,
+            contentType: file.mimetype,
+        }));
+
+        let detail = new Detail({
+            name: req.body.name,
+            price: req.body.price,
+            description: req.body.description,
+            phoneNumber: req.body.phoneNumber,
+            sqft: req.body.sqft,
+            bed: req.body.bed,
+            bath: req.body.bath,
+            ownername: req.body.ownername,
+            deposit: req.body.deposit,
+            FurnishedStatus: req.body.FurnishedStatus,
+            Availability: req.body.Availability,
+            Perferredfor: req.body.Perferredfor,
+            ageofconstruction: req.body.ageofconstruction,
+            info: req.body.info,
+            location: req.body.location,
+            images: images,
+        });
+
+        console.log('Detail object created, saving to database');
+
+        let result = await detail.save();
+
+        console.log('Detail saved successfully');
+        res.send(result);
+    } catch (error) {
+        console.error('Error saving detail:', error);
+        res.status(500).send({ error: 'Failed to save detail' });
+    }
+});
+
+// API to retrieve all the details from the DB
+app.get('/details', async (req, res) => {
+    try {
+        let details = await Detail.find();
+        let formattedDetails = details.map((detail) => ({
+            _id: detail._id,
+            name: detail.name,
+            price: detail.price,
+            description: detail.description,
+            phoneNumber: detail.phoneNumber,
+            sqft: detail.sqft,
+            bed: detail.bed,
+            bath: detail.bath,
+            location: detail.location,
+            images: detail.images.map(image => `data:${image.contentType};base64,${image.data.toString('base64')}`),
+        }));
+        res.send(formattedDetails);
+    } catch (error) {
+        res.status(500).send({ error: 'Failed to retrieve details' });
+    }
+});
+
+// API to retrieve a particular detail by ID
+app.get('/details/:id', async (req, res) => {
+    try {
+        let detail = await Detail.findById(req.params.id);
+        if (!detail) {
+            return res.status(404).send({ error: 'Detail not found' });
+        }
+        let formattedDetail = {
+            _id: detail._id,
+            name: detail.name,
+            price: detail.price,
+            description: detail.description,
+            phoneNumber: detail.phoneNumber,
+            sqft: detail.sqft,
+            bed: detail.bed,
+            bath: detail.bath,
+            ownername: detail.ownername,
+            deposit: detail.deposit,
+            FurnishedStatus: detail.FurnishedStatus,
+            Availability: detail.Availability,
+            Perferredfor: detail.Perferredfor,
+            ageofconstruction: detail.ageofconstruction,
+            info: detail.info,
+            location: detail.location,
+            images: detail.images.map(image => `data:${image.contentType};base64,${image.data.toString('base64')}`),
+        };
+        res.send(formattedDetail);
+    } catch (error) {
+        res.status(500).send({ error: 'Failed to retrieve detail' });
+    }
+});
+
+// Search endpoint
+app.get('/search', async (req, res) => {
+    try {
+        let { name, price, description } = req.query;
+        let searchCriteria = {};
+
+        if (name) {
+            searchCriteria.name = new RegExp(name, 'i'); // Case insensitive regex search
+        }
+
+        if (price) {
+            searchCriteria.price = price;
+        }
+
+        if (description) {
+            searchCriteria.description = new RegExp(description, 'i'); // Case insensitive regex search
+        }
+
+        let results = await Detail.find(searchCriteria);
+        res.send(results);
+    } catch (error) {
+        res.status(500).send({ error: 'Failed to search details' });
+    }
+});
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
