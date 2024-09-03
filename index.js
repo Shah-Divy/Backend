@@ -418,6 +418,52 @@ app.delete('/details/:id', async (req, res) => {
     }
 });
 
+// API to update a particular detail by ID
+app.put('/details/:id', upload.array('images', 5), async (req, res) => {
+    try {
+        const detailId = req.params.id;  // Extract the detail ID from the request parameters
+
+        // Extract updated fields from the request body
+        const updatedFields = {
+            name: req.body.name,
+            price: req.body.price,
+            description: req.body.description,
+            phoneNumber: req.body.phoneNumber,
+            sqft: req.body.sqft,
+            bed: req.body.bed,
+            bath: req.body.bath,
+            ownername: req.body.ownername,
+            deposit: req.body.deposit,
+            FurnishedStatus: req.body.FurnishedStatus,
+            Availability: req.body.Availability,
+            Perferredfor: req.body.Perferredfor,
+            ageofconstruction: req.body.ageofconstruction,
+            info: req.body.info,
+            location: req.body.location,
+        };
+
+        // Check if any images are provided in the request
+        if (req.files && req.files.length > 0) {
+            const images = req.files.map(file => ({
+                data: file.buffer,
+                contentType: file.mimetype,
+            }));
+            updatedFields.images = images;  // Add images to the updated fields
+        }
+
+        // Find the detail by ID and update with new fields
+        const result = await Detail.findByIdAndUpdate(detailId, updatedFields, { new: true });
+
+        if (!result) {
+            return res.status(404).send({ error: 'Detail not found' });  // If no detail is found, send a 404 response
+        }
+
+        res.send(result);  // Send the updated detail as the response
+    } catch (error) {
+        console.error('Error updating detail:', error);  // Log the error to the console
+        res.status(500).send({ error: 'Failed to update detail' });  // Send a 500 response in case of error
+    }
+});
 
 
 const PORT = process.env.PORT || 5000;
