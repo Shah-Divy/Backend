@@ -400,6 +400,25 @@ app.get('/search', async (req, res) => {
     }
 });
 
+// API to delete a particular detail by ID
+app.delete('/details/:id', async (req, res) => {
+    try {
+        const detailId = req.params.id;  // Extract the detail ID from the request parameters
+
+        const result = await Detail.findByIdAndDelete(detailId);  // Delete the detail by ID
+
+        if (!result) {
+            return res.status(404).send({ error: 'Detail not found' });  // If no detail is found, send a 404 response
+        }
+
+        res.send({ message: 'Detail deleted successfully' });  // Send a success response
+    } catch (error) {
+        console.error('Error deleting detail:', error);  // Log the error to the console
+        res.status(500).send({ error: 'Failed to delete detail' });  // Send a 500 response in case of error
+    }
+});
+
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
